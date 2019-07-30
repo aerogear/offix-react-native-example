@@ -12,13 +12,24 @@ import { ApolloProvider, graphql, Mutation } from 'react-apollo';
 import { OfflineClient } from "offix-client"
 import gql from 'graphql-tag';
 
-import { AsyncStorage } from "@react-native-community/async-storage"
-import { ReactNativeNetworkStatus } from "./network"
+import AsyncStorage from "@react-native-community/async-storage"
+import NetInfo from "@react-native-community/netinfo"
 
 const offlineClient = new OfflineClient({
   httpUrl: 'http://localhost:4000/graphql',
   storage: AsyncStorage,
-  networkStatus: new ReactNativeNetworkStatus()
+  networkStatus: {
+    onStatusChangeListener(callback) {
+      const listener = (connected) => {
+        // console.log("network changed", connected)
+        callback.onStatusChange({ online: connected })
+      };
+      NetInfo.isConnected.addEventListener('connectionChange', listener)
+    },
+    isOffline() {
+      return NetInfo.isConnected.fetch().then(connected => !connected)
+    }
+  }
 });
 
 const shopsQuery = gql`
@@ -64,12 +75,9 @@ const App = () => {
     )
   }
   return <Text>Loading</Text>
-
-
 };
 
 const ShopComponent = graphql(shopsQuery)(props => {
-
   const { error, findAllShops } = props.data;
   if (error) {
     return <Text>{error}</Text>;
@@ -108,6 +116,14 @@ export class ShopScreen extends Component {
               />
               <Button
                 onPress={() => {
+                  // const options = createMutationOptions({
+                  //   mutation: addShopMutation,
+                  //   variables: {
+                  //     name: this.state.name
+                  //   },
+                  //   cacheUpdateQuery: shopsQuery,
+                  //   returnType: 'Shop',
+                  // });
                   addShopMutation({
                     variables: {
                       name: this.state.name
@@ -122,7 +138,7 @@ export class ShopScreen extends Component {
             </View>
           )}
         </Mutation>
-        <Text style={styles.welcome}>My dogs:</Text>
+        <Text style={styles.welcome}>My shops:</Text>
         <ShopComponent />
       </View>
     );
