@@ -9,7 +9,16 @@ import NetInfo from "@react-native-community/netinfo"
 
 const offlineClient = new OfflineClient({
   httpUrl: 'http://localhost:4000/graphql',
-  storage: AsyncStorage,
+  storage: {
+    getItem: async (key) => {
+      const data = await AsyncStorage.getItem(key);
+      if (data)
+        return data;
+    },
+    setItem: (key, value) => {
+      return AsyncStorage.setItem(key, JSON.stringify(value));
+    }
+  },
   networkStatus: {
     onStatusChangeListener(callback) {
       const listener = (connected) => {
@@ -94,39 +103,38 @@ export class ShopScreen extends Component {
   };
 
   render() {
-    return <View />
-  //   return (
-  //     <View style={styles.container}>
-  //       <Mutation mutation={addShopMutation} refetchQueries={[{ query: dogQuery }]}>
-  //         {(addShopMutation, { data }) => (
-  //           <View>
-  //             <Text style={styles.welcome}>Shops data:</Text>
-  //             <TextInput
-  //               style={styles.input}
-  //               onChangeText={text => this.setState({ name: text })}
-  //               value={this.state.name}
-  //               placeholder="name"
-  //             />
-  //             <Button
-  //               onPress={() => {
-  //                 addShopMutation({
-  //                   variables: {
-  //                     name: this.state.name
-  //                   }
-  //                 })
-  //                   .then(res => res)
-  //                   .catch(err => <Text>{err}</Text>);
-  //                 this.setState({ type: '', name: '' });
-  //               }}
-  //               title="Add shop"
-  //             />
-  //           </View>
-  //         )}
-  //       </Mutation>
-  //       <Text style={styles.welcome}>My shops:</Text>
-  //       <ShopComponent />
-  //     </View>
-  //   );
+    return (
+      <View style={styles.container}>
+        <Mutation mutation={addShopMutation} refetchQueries={[{ query: shopsQuery }]}>
+          {(addShopMutation, { data }) => (
+            <View>
+              <Text style={styles.welcome}>Shops data:</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={text => this.setState({ name: text })}
+                value={this.state.name}
+                placeholder="name"
+              />
+              <Button
+                onPress={() => {
+                  addShopMutation({
+                    variables: {
+                      name: this.state.name
+                    }
+                  })
+                    .then(res => res)
+                    .catch(err => <Text>{err}</Text>);
+                  this.setState({ type: '', name: '' });
+                }}
+                title="Add shop"
+              />
+            </View>
+          )}
+        </Mutation>
+        <Text style={styles.welcome}>My shops:</Text>
+        <ShopComponent />
+      </View>
+    );
   }
 }
 
