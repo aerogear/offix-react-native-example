@@ -12,8 +12,13 @@ import { ApolloProvider, graphql, Mutation } from 'react-apollo';
 import { OfflineClient } from "offix-client"
 import gql from 'graphql-tag';
 
+import { AsyncStorage } from "react-native"
+import { ReactNativeNetworkStatus } from "./network"
+
 const offlineClient = new OfflineClient({
-  httpUrl: 'http://localhost:4000/graphql'
+  httpUrl: 'http://localhost:4000/graphql',
+  storage: AsyncStorage,
+  networkStatus: new ReactNativeNetworkStatus()
 });
 
 const shopsQuery = gql`
