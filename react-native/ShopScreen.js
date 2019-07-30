@@ -1,0 +1,115 @@
+import React, { Component, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Button, Modal, TextInput } from 'react-native';
+import { ApolloProvider, graphql, Mutation } from 'react-apollo';
+import { OfflineClient } from "offix-client"
+import gql from 'graphql-tag';
+
+
+const dogQuery = gql`
+  query {
+    dogs {
+      name
+      type
+    }
+  }
+`;
+
+const addDog = gql`
+  mutation addDog($type: String!, $name: String!) {
+    createDog(data: { type: $type, name: $name }) {
+      id
+    }
+  }
+`;
+
+const DogComponent = graphql(dogQuery)(props => {
+    
+    const { error, dogs } = props.data;
+    if (error) {
+        return <Text>{error}</Text>;
+    }
+    if (dogs) {
+        return (
+            <View>
+                {dogs.map(dog => {
+                    return <Text key={dog.name}>{dog.name}</Text>;
+                })}
+            </View>
+        );
+    }
+
+    return <Text>Loading...</Text>;
+});
+
+export class DogsScreen extends Component {
+    state = {
+        name: '',
+        type: ''
+    };
+
+    render() {
+        return (
+            <ApolloProvider client={client}>
+                <View style={styles.container}>
+                    <Mutation mutation={addDog} refetchQueries={[{ query: dogQuery }]}>
+                        {(addDogMutation, { data }) => (
+                            <View>
+                                <Text style={styles.welcome}>Dogs data:</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={text => this.setState({ name: text })}
+                                    value={this.state.name}
+                                    placeholder="name"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={text => this.setState({ type: text })}
+                                    value={this.state.type}
+                                    placeholder="type"
+                                />
+                                <Button
+                                    onPress={() => {
+                                        addDogMutation({
+                                            variables: {
+                                                type: this.state.type,
+                                                name: this.state.name
+                                            }
+                                        })
+                                            .then(res => res)
+                                            .catch(err => <Text>{err}</Text>);
+                                        this.setState({ type: '', name: '' });
+                                    }}
+                                    title="Add dog"
+                                />
+                            </View>
+                        )}
+                    </Mutation>
+                    <Text style={styles.welcome}>My dogs:</Text>
+                    <DogComponent />
+                </View>
+            </ApolloProvider>
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF'
+    },
+    welcome: {
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10
+    },
+    input: {
+        height: 30,
+        width: 150,
+        borderColor: 'gray',
+        borderWidth: 1,
+        marginTop: 5,
+        padding: 1
+    }
+});

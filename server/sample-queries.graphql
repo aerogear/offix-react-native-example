@@ -1,0 +1,20 @@
+
+query findShops{
+  
+  findAllShops{
+    id
+    name
+  }
+}
+
+mutation createShop{
+  createShop(input:{
+    name:"test"
+  }){
+    id
+    name
+    product{
+      id
+    }
+  }
+}
