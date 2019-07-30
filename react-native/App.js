@@ -13,7 +13,7 @@ import { OfflineClient } from "offix-client"
 import gql from 'graphql-tag';
 
 const offlineClient = new OfflineClient({
-  uri: 'http://localhost:4000/graphql'
+  httpUrl: 'http://localhost:4000/graphql'
 });
 
 const shopsQuery = gql`
@@ -44,7 +44,7 @@ const App = () => {
   // Inside useEffect, initialize the offix client and set the apollo client
   // This only happens once.
   useEffect(() => {
-    offixClient.init().then((client) => {
+    offlineClient.init().then((client) => {
       console.log('offline client initialized')
       setApolloClient(client)
     })
@@ -58,7 +58,7 @@ const App = () => {
       </ApolloProvider>
     )
   }
-  return <div>Loading...</div>
+  return <Text>Loading</Text>
 
 
 };

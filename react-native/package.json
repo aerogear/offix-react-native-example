@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "offix-client": "^0.7.0",
     "react": "16.8.6",
