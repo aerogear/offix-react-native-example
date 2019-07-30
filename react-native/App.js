@@ -12,7 +12,7 @@ import { ApolloProvider, graphql, Mutation } from 'react-apollo';
 import { OfflineClient } from "offix-client"
 import gql from 'graphql-tag';
 
-import { AsyncStorage } from "react-native"
+import { AsyncStorage } from "@react-native-community/async-storage"
 import { ReactNativeNetworkStatus } from "./network"
 
 const offlineClient = new OfflineClient({

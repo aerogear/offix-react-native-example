@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.6.1",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "offix-client": "^0.7.0",
