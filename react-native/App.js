@@ -104,7 +104,7 @@ export class ShopScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Mutation mutation={addShopMutation}>
+        <Mutation mutation={addShopMutation} refetchQueries={[{ query: dogQuery }]}>
           {(addShopMutation, { data }) => (
             <View>
               <Text style={styles.welcome}>Shops data:</Text>
@@ -116,14 +116,6 @@ export class ShopScreen extends Component {
               />
               <Button
                 onPress={() => {
-                  // const options = createMutationOptions({
-                  //   mutation: addShopMutation,
-                  //   variables: {
-                  //     name: this.state.name
-                  //   },
-                  //   cacheUpdateQuery: shopsQuery,
-                  //   returnType: 'Shop',
-                  // });
                   addShopMutation({
                     variables: {
                       name: this.state.name
