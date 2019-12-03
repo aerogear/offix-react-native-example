@@ -1,15 +1,16 @@
 # offix-react-native-sample
+
 Sample react native app for offix.dev
 
-## Running 
+## Running server
 
 ```
-npm install 
 cd server
+npm install 
 npm run start
 ```
 
-Running app
+## Running React native app
 
 `npm install`
 
