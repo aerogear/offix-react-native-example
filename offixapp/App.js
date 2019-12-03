@@ -10,26 +10,33 @@ import NetInfo from "@react-native-community/netinfo"
 
 const cacheStorage = {
   getItem: async (key) => {
-    //await AsyncStorage.clear();
     const data = await AsyncStorage.getItem(key);
-
-    if (typeof data === 'string') //FIX: Required to prevent data becoming corrupt and bloated
+    if (typeof data === 'string') {
       return JSON.parse(data);
-
-    console.log("data getItem", data);
+    }
     return data;
   },
   setItem: async (key, value) => {
-    console.log("data setItem 1", key, value);
     let valueStr = value;
     if (typeof valueStr === 'object') {
       valueStr = JSON.stringify(value);
     }
-    console.log("data setItem", valueStr);
     return AsyncStorage.setItem(key, valueStr);
-  },
+  }
 };
 
+const networkStatus = {
+  onStatusChangeListener(callback) {
+    const listener = (connected) => {
+      console.log("network changed", connected)
+      callback.onStatusChange({ online: connected })
+    };
+    NetInfo.isConnected.addEventListener('connectionChange', listener)
+  },
+  isOffline() {
+    return false; NetInfo.isConnected.fetch().then(connected => !connected)
+  }
+};
 
 
 const offlineClient = new ApolloOfflineClient({
@@ -37,18 +44,7 @@ const offlineClient = new ApolloOfflineClient({
   link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
   offlineStorage: cacheStorage,
   cacheStorage,
-  networkStatus: {
-    onStatusChangeListener(callback) {
-      const listener = (connected) => {
-        console.log("network changed", connected)
-        callback.onStatusChange({ online: connected })
-      };
-      NetInfo.isConnected.addEventListener('connectionChange', listener)
-    },
-    isOffline() {
-      return false; NetInfo.isConnected.fetch().then(connected => !connected)
-    }
-  }
+  networkStatus
 });
 
 const shopsQuery = gql`
