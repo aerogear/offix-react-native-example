@@ -14,7 +14,8 @@
     "graphql-tag": "^2.10.1",
     "react": "16.8.3",
     "react-apollo": "^2.5.8",
-    "react-native": "0.59.9"
+    "react-native": "0.59.9",
+    "react-offix-hooks": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

@@ -1,105 +1,37 @@
 import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, Modal, TextInput } from 'react-native';
-import { ApolloProvider, graphql, Mutation } from 'react-apollo';
-import { ApolloOfflineClient } from "offix-client"
-import gql from 'graphql-tag';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { HttpLink } from "apollo-link-http";
-import AsyncStorage from "@react-native-community/async-storage"
-import NetInfo from "@react-native-community/netinfo"
-
-const cacheStorage = {
-  getItem: async (key) => {
-    const data = await AsyncStorage.getItem(key);
-    if (typeof data === 'string') {
-      return JSON.parse(data);
-    }
-    return data;
-  },
-  setItem: async (key, value) => {
-    let valueStr = value;
-    if (typeof valueStr === 'object') {
-      valueStr = JSON.stringify(value);
-    }
-    return AsyncStorage.setItem(key, valueStr);
-  }
-};
-
-const networkStatus = {
-  onStatusChangeListener(callback) {
-    const listener = (connected) => {
-      console.log("network changed", connected)
-      callback.onStatusChange({ online: connected })
-    };
-    NetInfo.isConnected.addEventListener('connectionChange', listener)
-  },
-  isOffline() {
-    return false; NetInfo.isConnected.fetch().then(connected => !connected)
-  }
-};
-
-
-const offlineClient = new ApolloOfflineClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
-  offlineStorage: cacheStorage,
-  cacheStorage,
-  networkStatus
-});
-
-const shopsQuery = gql`
-  query {
-    findAllShops{
-      id
-      name
-    }
-  }
-`;
-
-const addShopMutation = gql`
-  mutation createShop($name: String!) {
-    createShop(input: { name: $name }) {
-      id
-      name
-    }
-  }
-`;
+import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { ApolloProvider, graphql as query, Mutation } from 'react-apollo';
+import { ApolloOfflineProvider, useOfflineMutation } from 'react-offix-hooks'
+import { ApolloProvider } from '@apollo/react-hooks'
+import { offlineClient } from './offix'
+import { addShopMutation, shopsQuery } from './queries'
 
 const App = () => {
-  // First we initialize a piece of state called apolloClient
-  // It's null at the start
-  const [apolloClient, setApolloClient] = useState(null)
+  const [initialized, setInitialized] = useState(false)
 
-  console.log('app render')
-
-  // Inside useEffect, initialize the offix client and set the apollo client
-  // This only happens once.
+  // initialize the offix client and set the apollo client
   useEffect(() => {
-    offlineClient.init().then(() => {
-      console.log('offline client initialized')
-      // TODO temporay hack to use offline mutations inside hoc components
-      // We will move this to react hooks package we support
-      // offlineClient.mutate = offlineClient.offlineMutate.bind(offlineClient);
-      setApolloClient(offlineClient)
-    })
+    offlineClient.init().then(() => setInitialized(true))
   }, [])
 
   // load the app if the apolloClient is there, otherwise load a loading screen
-  if (apolloClient) {
+  if (initialized) {
     return (
-      <ApolloProvider client={apolloClient}>
-        <ShopScreen></ShopScreen>
-      </ApolloProvider>
+      <ApolloOfflineProvider client={offlineClient}>
+        <ApolloProvider client={offlineClient}>
+          <ShopScreen></ShopScreen>
+        </ApolloProvider>
+      </ApolloOfflineProvider>
     )
   }
   return <Text>Loading</Text>
 };
 
-const ShopComponent = graphql(shopsQuery)(props => {
+const ShopComponent = query(shopsQuery)(props => {
   const { error, findAllShops } = props.data;
   if (error) {
     console.log(error);
-    return <Text>Error</Text>;
+    return <Text>Error when querying data</Text>;
   }
   if (findAllShops) {
     return (
@@ -121,34 +53,39 @@ export class ShopScreen extends Component {
   };
 
   render() {
+
+    const [addShop, state] = useOfflineMutation(addShopMutation, {
+      variables: {
+        chatId,
+        content: inputRef.current.value,
+      }
+    })
+
     return (
       <View style={styles.container}>
-        <Mutation mutation={addShopMutation} refetchQueries={[{ query: shopsQuery }]}>
-          {(addShopMutation, { data }) => (
-            <View>
-              <Text style={styles.welcome}>Shops data:</Text>
-              <TextInput
-                style={styles.input}
-                onChangeText={text => this.setState({ name: text })}
-                value={this.state.name}
-                placeholder="name"
-              />
-              <Button
-                onPress={() => {
-                  addShopMutation({
-                    variables: {
-                      name: this.state.name
-                    }
-                  })
-                    .then(res => res)
-                    .catch(err => <Text>{err}</Text>);
-                  this.setState({ type: '', name: '' });
-                }}
-                title="Add shop"
-              />
-            </View>
-          )}
-        </Mutation>
+        <View>
+          <Text style={styles.welcome}>Shops data:</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={text => this.setState({ name: text })}
+            value={this.state.name}
+            placeholder="name"
+          />
+          <Button
+            onPress={() => {
+              addShop({
+                variables: {
+                  name: this.state.name
+                }
+              })
+                .then(res => res)
+                .catch(err => <Text>{err}</Text>);
+              this.setState({ type: '', name: '' });
+            }}
+            title="Add shop"
+          />
+        </View>
+        )}
         <Text style={styles.welcome}>My shops:</Text>
         <ShopComponent />
       </View>
