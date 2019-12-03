@@ -8,29 +8,35 @@ import { HttpLink } from "apollo-link-http";
 import AsyncStorage from "@react-native-community/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 
-const storage = {
+const cacheStorage = {
   getItem: async (key) => {
-    console.log(key);
     //await AsyncStorage.clear();
     const data = await AsyncStorage.getItem(key);
-    console.log(data);
-    if (data) {
-      return data;
-    }
-    return "";
 
+    if (typeof data === 'string') //FIX: Required to prevent data becoming corrupt and bloated
+      return JSON.parse(data);
+
+    console.log("data getItem", data);
+    return data;
   },
-  setItem: (key, value) => {
-    console.log(key, value);
-    return AsyncStorage.setItem(key, JSON.stringify(value));
-  }
+  setItem: async (key, value) => {
+    console.log("data setItem 1", key, value);
+    let valueStr = value;
+    if (typeof valueStr === 'object') {
+      valueStr = JSON.stringify(value);
+    }
+    console.log("data setItem", valueStr);
+    return AsyncStorage.setItem(key, valueStr);
+  },
 };
+
+
 
 const offlineClient = new ApolloOfflineClient({
   cache: new InMemoryCache(),
   link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
-  offlineStorage: storage,
-  cacheStorage: storage,
+  offlineStorage: cacheStorage,
+  cacheStorage,
   networkStatus: {
     onStatusChangeListener(callback) {
       const listener = (connected) => {
@@ -40,7 +46,7 @@ const offlineClient = new ApolloOfflineClient({
       NetInfo.isConnected.addEventListener('connectionChange', listener)
     },
     isOffline() {
-      return NetInfo.isConnected.fetch().then(connected => !connected)
+      return false; NetInfo.isConnected.fetch().then(connected => !connected)
     }
   }
 });
@@ -75,6 +81,9 @@ const App = () => {
   useEffect(() => {
     offlineClient.init().then(() => {
       console.log('offline client initialized')
+      // TODO temporay hack to use offline mutations inside hoc components
+      // We will move this to react hooks package we support
+      // offlineClient.mutate = offlineClient.offlineMutate.bind(offlineClient);
       setApolloClient(offlineClient)
     })
   }, [])

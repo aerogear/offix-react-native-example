@@ -4,12 +4,19 @@ Sample react native app for offix.dev
 ## Running 
 
 ```
+npm install 
 cd server
-docker-compose up -d
 npm run start
 ```
 
-App
+Running app
+
+`npm install`
+
+Run agent
+`npm run start`
+
+Start emulator
 `react-native run-ios`
 
 
