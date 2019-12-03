@@ -31,15 +31,17 @@ const offlineClient = new ApolloOfflineClient({
   link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
   offlineStorage: storage,
   cacheStorage: storage,
-  onStatusChangeListener(callback) {
-    const listener = (connected) => {
-      console.log("network changed", connected)
-      callback.onStatusChange({ online: connected })
-    };
-    NetInfo.isConnected.addEventListener('connectionChange', listener)
-  },
-  isOffline() {
-    return NetInfo.isConnected.fetch().then(connected => !connected)
+  networkStatus: {
+    onStatusChangeListener(callback) {
+      const listener = (connected) => {
+        console.log("network changed", connected)
+        callback.onStatusChange({ online: connected })
+      };
+      NetInfo.isConnected.addEventListener('connectionChange', listener)
+    },
+    isOffline() {
+      return NetInfo.isConnected.fetch().then(connected => !connected)
+    }
   }
 });
 
