@@ -1,30 +1,35 @@
 import gql from 'graphql-tag'
 
 export const typeDefs = gql`
+  
+
   type Shop {
     id: ID!
     name: String!
-    product: [Product!]
+    products: [Product!]
+    customers: [Person!]
   }
 
-  type Customer {
+  type Person {
     id: ID!
     name: String!
+    shop: Shop!
   }
 
   type Product {
     id: ID!
     name: String!
     quantity: Int!
-    shopId: ID!
+    shop: Shop!
   }
 
   input ShopInput {
     name: String!
   }
 
-  input CustomerInput {
+  input PersonInput {
     name: String!
+    shopId: ID!
   }
 
   input ProductInput {
@@ -38,9 +43,10 @@ export const typeDefs = gql`
     name: String
   }
 
-  input CustomerFilter {
+  input PersonFilter {
     id: ID
     name: String
+    shopId: ID
   }
 
   input ProductFilter {
@@ -52,34 +58,19 @@ export const typeDefs = gql`
 
   type Query {
     findShops(fields: ShopFilter!): [Shop!]!
-    findCustomers(fields: CustomerFilter!): [Customer!]!
+    findPersons(fields: PersonFilter!): [Person!]!
     findProducts(fields: ProductFilter!): [Product!]!
     findAllShops: [Shop!]!
-    findAllCustomers: [Customer!]!
+    findAllPersons: [Person!]!
     findAllProducts: [Product!]!
   }
 
   type Mutation {
     createShop(input: ShopInput!): Shop!
-    createCustomer(input: CustomerInput!): Customer!
+    createPerson(input: PersonInput!): Person!
     createProduct(input: ProductInput!): Product!
     updateShop(id: ID!, input: ShopInput!): Shop!
-    updateCustomer(id: ID!, input: CustomerInput!): Customer!
+    updatePerson(id: ID!, input: PersonInput!): Person!
     updateProduct(id: ID!, input: ProductInput!): Product!
-    deleteShop(id: ID!): ID!
-    deleteCustomer(id: ID!): ID!
-    deleteProduct(id: ID!): ID!
-  }
-
-  type Subscription {
-    newShop: Shop!
-    newCustomer: Customer!
-    newProduct: Product!
-    updatedShop: Shop!
-    updatedCustomer: Customer!
-    updatedProduct: Product!
-    deletedShop: ID!
-    deletedCustomer: ID!
-    deletedProduct: ID!
   }
 `
