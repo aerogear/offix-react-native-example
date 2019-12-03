@@ -1,35 +1,45 @@
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, Modal, TextInput } from 'react-native';
 import { ApolloProvider, graphql, Mutation } from 'react-apollo';
-import { OfflineClient } from "offix-client"
+import { ApolloOfflineClient } from "offix-client"
 import gql from 'graphql-tag';
-
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from "apollo-link-http";
 import AsyncStorage from "@react-native-community/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 
-const offlineClient = new OfflineClient({
-  httpUrl: 'http://localhost:4000/graphql',
-  storage: {
-    getItem: async (key) => {
-      const data = await AsyncStorage.getItem(key);
-      if (data)
-        return data;
-    },
-    setItem: (key, value) => {
-      return AsyncStorage.setItem(key, JSON.stringify(value));
+const storage = {
+  getItem: async (key) => {
+    console.log(key);
+    //await AsyncStorage.clear();
+    const data = await AsyncStorage.getItem(key);
+    console.log(data);
+    if (data) {
+      return data;
     }
+    return "";
+
   },
-  networkStatus: {
-    onStatusChangeListener(callback) {
-      const listener = (connected) => {
-        // console.log("network changed", connected)
-        callback.onStatusChange({ online: connected })
-      };
-      NetInfo.isConnected.addEventListener('connectionChange', listener)
-    },
-    isOffline() {
-      return NetInfo.isConnected.fetch().then(connected => !connected)
-    }
+  setItem: (key, value) => {
+    console.log(key, value);
+    return AsyncStorage.setItem(key, JSON.stringify(value));
+  }
+};
+
+const offlineClient = new ApolloOfflineClient({
+  cache: new InMemoryCache(),
+  link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
+  offlineStorage: storage,
+  cacheStorage: storage,
+  onStatusChangeListener(callback) {
+    const listener = (connected) => {
+      console.log("network changed", connected)
+      callback.onStatusChange({ online: connected })
+    };
+    NetInfo.isConnected.addEventListener('connectionChange', listener)
+  },
+  isOffline() {
+    return NetInfo.isConnected.fetch().then(connected => !connected)
   }
 });
 
@@ -61,9 +71,9 @@ const App = () => {
   // Inside useEffect, initialize the offix client and set the apollo client
   // This only happens once.
   useEffect(() => {
-    offlineClient.init().then((client) => {
+    offlineClient.init().then(() => {
       console.log('offline client initialized')
-      setApolloClient(client)
+      setApolloClient(offlineClient)
     })
   }, [])
 
@@ -81,7 +91,8 @@ const App = () => {
 const ShopComponent = graphql(shopsQuery)(props => {
   const { error, findAllShops } = props.data;
   if (error) {
-    return <Text>{error}</Text>;
+    console.log(error);
+    return <Text>Error</Text>;
   }
   if (findAllShops) {
     return (
