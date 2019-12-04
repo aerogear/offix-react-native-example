@@ -14,13 +14,16 @@ const cacheStorage = {
     console.log("Get item", data)
     return data;
   },
-  setItem: async (key, value) => {
+  setItem: (key, value) => {
     let valueStr = value;
     if (typeof valueStr === 'object') {
       valueStr = JSON.stringify(value);
     }
     console.log("set item", valueStr)
     return AsyncStorage.setItem(key, valueStr);
+  },
+  removeItem: (key) => {
+    return AsyncStorage.removeItem(key);
   }
 };
 
@@ -29,6 +32,9 @@ const networkStatus = {
     const listener = (connected) => {
       console.log("network changed", connected)
       callback.onStatusChange({ online: connected })
+
+
+
     };
     NetInfo.isConnected.addEventListener('connectionChange', listener)
   },
