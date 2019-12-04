@@ -31,16 +31,15 @@ const networkStatus = {
   onStatusChangeListener(callback) {
     const listener = (connected) => {
       console.log("network changed", connected)
-      callback.onStatusChange({ online: false })
+      callback.onStatusChange({ online: connected })
 
-      setTimeout(() => {
-        callback.onStatusChange({ online: true })
-      }, 10000)
+
+
     };
     NetInfo.isConnected.addEventListener('connectionChange', listener)
   },
   isOffline() {
-    return true; NetInfo.isConnected.fetch().then(connected => !connected)
+    return NetInfo.isConnected.fetch().then(connected => !connected)
   }
 };
 
