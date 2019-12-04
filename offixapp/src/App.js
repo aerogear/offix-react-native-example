@@ -85,8 +85,10 @@ export function ShopScreen() {
       <Text style={styles.welcome}>My shops:</Text>
       <ShopComponent />
 
-
-      <Text style={styles.welcome}>OfflineChange: {JSON.stringify(state)}</Text>
+      <Text style={styles.welcome}>
+        {state.calledWhileOffline? 'Enqueued offline change': ''}
+        {state.offlineChangeReplicated? '\nChange replicated': ''} 
+      </Text>
     </View>
   );
 }
