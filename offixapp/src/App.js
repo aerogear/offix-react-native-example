@@ -84,6 +84,9 @@ export function ShopScreen() {
       </View>
       <Text style={styles.welcome}>My shops:</Text>
       <ShopComponent />
+
+
+      <Text style={styles.welcome}>OfflineChange: {JSON.stringify(state)}</Text>
     </View>
   );
 }
