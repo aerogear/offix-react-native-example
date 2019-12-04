@@ -13,7 +13,7 @@
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "react": "16.8.3",
-    "react-apollo": "^2.5.8",
+    "react-apollo": "3.1.3",
     "react-native": "0.59.9",
     "react-offix-hooks": "^0.11.0"
   },

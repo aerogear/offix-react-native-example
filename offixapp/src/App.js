@@ -1,8 +1,7 @@
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import { ApolloProvider, graphql as query, Mutation } from 'react-apollo';
+import { graphql as query, ApolloProvider } from 'react-apollo';
 import { ApolloOfflineProvider, useOfflineMutation } from 'react-offix-hooks'
-import { ApolloProvider } from '@apollo/react-hooks'
 import { offlineClient } from './offix'
 import { addShopMutation, shopsQuery } from './queries'
 
