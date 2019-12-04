@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import { graphql as query, ApolloProvider } from 'react-apollo';
+import { withQuery, ApolloProvider } from 'react-apollo';
 import { ApolloOfflineProvider, useOfflineMutation } from 'react-offix-hooks'
 import { offlineClient } from './offix'
 import { addShopMutation, shopsQuery } from './queries'
@@ -26,7 +26,7 @@ const App = () => {
   return <Text>Loading</Text>
 };
 
-const ShopComponent = query(shopsQuery)(props => {
+const ShopComponent = withQuery(shopsQuery, { options: { fetchPolicy: "cache-and-network" } })(props => {
   const { error, findAllShops } = props.data;
   if (error) {
     console.log(error);
@@ -86,8 +86,8 @@ export function ShopScreen() {
       <ShopComponent />
 
       <Text style={styles.welcome}>
-        {state.calledWhileOffline? 'Enqueued offline change': ''}
-        {state.offlineChangeReplicated? '\nChange replicated': ''} 
+        {state.calledWhileOffline ? 'Enqueued offline change' : ''}
+        {state.offlineChangeReplicated ? '\nChange replicated' : ''}
       </Text>
     </View>
   );
