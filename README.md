@@ -1,6 +1,6 @@
 # offix-react-native-sample
 
-Sample react native app for offix.dev
+This project demos example react native app using Offix Apollo GraphQL client
 
 ## Running server
 
@@ -12,14 +12,12 @@ npm run start
 
 ## Running React native app
 
-`npm install`
-
-Run agent
-`npm run start`
-
-Start emulator
-`react-native run-ios`
-
+```
+cd offixapp
+npm install 
+npm run start
+react-native run-ios
+```
 
 
 
