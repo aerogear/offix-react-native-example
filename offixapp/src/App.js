@@ -53,12 +53,7 @@ export class ShopScreen extends Component {
 
   render() {
 
-    const [addShop, state] = useOfflineMutation(addShopMutation, {
-      variables: {
-        chatId,
-        content: inputRef.current.value,
-      }
-    })
+    const [addShop, state] = useOfflineMutation(addShopMutation)
 
     return (
       <View style={styles.container}>
