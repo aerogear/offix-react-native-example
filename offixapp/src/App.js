@@ -35,8 +35,8 @@ const ShopComponent = query(shopsQuery)(props => {
   if (findAllShops) {
     return (
       <View>
-        {findAllShops.map(shop => {
-          return <Text key={shop.name}>{shop.name}</Text>;
+        {findAllShops.map((shop, index) => {
+          return <Text key={index}>{shop.name}</Text>;
         })}
       </View>
     );
@@ -45,46 +45,47 @@ const ShopComponent = query(shopsQuery)(props => {
   return <Text>Loading...</Text>;
 });
 
-export class ShopScreen extends Component {
-  state = {
+
+export function ShopScreen() {
+  const [shop, setShop] = useState({
     name: '',
     type: ''
-  };
+  });
 
-  render() {
-
-    const [addShop, state] = useOfflineMutation(addShopMutation)
-
-    return (
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.welcome}>Shops data:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => this.setState({ name: text })}
-            value={this.state.name}
-            placeholder="name"
-          />
-          <Button
-            onPress={() => {
-              addShop({
-                variables: {
-                  name: this.state.name
-                }
+  const [addShop, state] = useOfflineMutation(addShopMutation, {
+    updateQuery: shopsQuery,
+    returnType: 'Task'
+  })
+  return (
+    <View style={styles.container}>
+      <View>
+        <Text style={styles.welcome}>Shops data:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={text => setShop({ name: text })}
+          value={shop.name}
+          placeholder="name"
+        />
+        <Button
+          onPress={() => {
+            addShop({
+              variables: {
+                name: shop.name
+              }
+            })
+              .then(res => {
+                return res;
               })
-                .then(res => res)
-                .catch(err => <Text>{err}</Text>);
-              this.setState({ type: '', name: '' });
-            }}
-            title="Add shop"
-          />
-        </View>
-        )}
-        <Text style={styles.welcome}>My shops:</Text>
-        <ShopComponent />
+              .catch(err => <Text>{err}</Text>);
+            setShop({ type: '', name: '' });
+          }}
+          title="Add shop"
+        />
       </View>
-    );
-  }
+      <Text style={styles.welcome}>My shops:</Text>
+      <ShopComponent />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
