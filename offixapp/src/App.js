@@ -1,6 +1,6 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import { withQuery, ApolloProvider } from 'react-apollo';
+import { ApolloProvider, useQuery } from 'react-apollo'
 import { ApolloOfflineProvider, useOfflineMutation } from 'react-offix-hooks'
 import { offlineClient } from './offix'
 import { addShopMutation, shopsQuery } from './queries'
@@ -18,7 +18,7 @@ const App = () => {
     return (
       <ApolloOfflineProvider client={offlineClient}>
         <ApolloProvider client={offlineClient}>
-          <ShopScreen></ShopScreen>
+          <ShopScreen />
         </ApolloProvider>
       </ApolloOfflineProvider>
     )
@@ -26,12 +26,16 @@ const App = () => {
   return <Text>Loading</Text>
 };
 
-const ShopComponent = withQuery(shopsQuery, { options: { fetchPolicy: "cache-and-network" } })(props => {
-  const { error, findAllShops } = props.data;
+const ShopComponent = () => {
+  const { error, data, loading } = useQuery(shopsQuery, { options: { fetchPolicy: "cache-and-network" }})
+  if ( loading === true ) {
+    return <Text>Loading...</Text>;
+  }
   if (error) {
     console.log(error);
     return <Text>Error when querying data</Text>;
   }
+  const { findAllShops } = data;
   if (findAllShops) {
     return (
       <View>
@@ -41,9 +45,7 @@ const ShopComponent = withQuery(shopsQuery, { options: { fetchPolicy: "cache-and
       </View>
     );
   }
-
-  return <Text>Loading...</Text>;
-});
+};
 
 
 export function ShopScreen() {
