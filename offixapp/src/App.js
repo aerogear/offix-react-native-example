@@ -4,6 +4,7 @@ import { ApolloProvider, useQuery } from 'react-apollo'
 import { ApolloOfflineProvider, useOfflineMutation } from 'react-offix-hooks'
 import { offlineClient } from './offix'
 import { addShopMutation, shopsQuery } from './queries'
+import Network from './Network'
 
 const App = () => {
   const [initialized, setInitialized] = useState(false)
@@ -61,6 +62,7 @@ export function ShopScreen() {
   return (
     <View style={styles.container}>
       <View>
+        <Network />
         <Text style={styles.welcome}>Shops data:</Text>
         <TextInput
           style={styles.input}
